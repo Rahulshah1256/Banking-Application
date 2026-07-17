@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import com.jantabank.domain.enums.TransactionStatus;
+import com.jantabank.domain.enums.TransactionType;
+import com.jantabank.domain.enums.TransferMode;
 
 @Setter
 @Getter
@@ -14,7 +17,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity()
 @Table(name="transactions")
-public class Transaction {
+public class Transaction extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,5 +37,25 @@ public class Transaction {
     private Date transactiondate;
 
     @Column(name = "status",nullable = false)
-    private long status;
+    private TransactionStatus status;
+
+    @Column(name = "reference_number", length = 40, unique = true)
+    private String referenceNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transfer_mode", length = 20)
+    private TransferMode transferMode;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_type", length = 20)
+    private TransactionType transactionType;
+
+    @Column(name = "description", length = 255)
+    private String description;
+
+    @Column(name = "channel", length = 20)
+    private String channel;
+
+    @Column(name = "initiated_by_user_id")
+    private Long initiatedByUserId;
 }

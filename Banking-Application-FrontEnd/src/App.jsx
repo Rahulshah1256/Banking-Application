@@ -1,90 +1,59 @@
-import './App.css'
-import 'react-toastify/dist/ReactToastify.css';
-import HeaderComponent from './components/HeaderComponent'
-import FooterComponent from './components/FooterComponent'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import AccountComponent from './components/AccountComponent'
-import RegisterComponent from './components/RegisterComponent'
-import LoginComponent from './components/LoginComponent'
-import { isAdminUser, isUserLoggedIn } from './services/AuthService'
-import RegistrationSuccess from './components/RegistrationSuccess'
-import AccountRequestsComponent from './components/AccountRequestsComponent'
-import AccountsComponent from './components/AccountsComponent'
-import BeneficiaryComponent from './components/BeneficiaryComponent';
-import AddBeneficiaryComponent from './components/AddBeneficiaryComponent';
-import { TransferComponent } from './components/TransferComponent';
-import { ToastContainer } from 'react-toastify';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { ProtectedRoute, AdminRoute } from './components/RouteGuards';
+import AppLayout from './layout/AppLayout';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import Accounts from './pages/Accounts';
+import Transfer from './pages/Transfer';
+import Beneficiaries from './pages/Beneficiaries';
+import Cards from './pages/Cards';
+import Loans from './pages/Loans';
+import Deposits from './pages/Deposits';
+import Cheques from './pages/Cheques';
+import Profile from './pages/Profile';
+import Notifications from './pages/Notifications';
+import Support from './pages/Support';
+import Reports from './pages/Reports';
+import AdminConsole from './pages/admin/AdminConsole';
 
-function App() {
-
-
-  function AuthenticatedRoute({ children }) {
-    const isAuth = isUserLoggedIn();
-    if (isAuth) {
-      return children;
-    }
-    return <Navigate to="/" />
-  }
-
-  function AdminRoute({ children }) {
-    const isAdmin = isAdminUser();
-    if (isAdmin) {
-      return children;
-    }
-    return <Navigate to="/" />
-  }
-
+export default function App() {
   return (
-    
-    <>
-      <BrowserRouter>
-        <HeaderComponent />
-        <Routes>
-          <Route path='/' element={<LoginComponent />}></Route>
-          <Route path='/account-requests' element={
-            <AuthenticatedRoute>
-              <AccountRequestsComponent />
-            </AuthenticatedRoute>
-          }></Route>
-          <Route path='/accounts' element={
-            <AuthenticatedRoute>
-              <AccountsComponent />
-            </AuthenticatedRoute>
-          }></Route>
-          <Route path='/beneficiaries' element={
-            <AuthenticatedRoute>
-              <BeneficiaryComponent />
-            </AuthenticatedRoute>
-          }></Route>
-          <Route path='/add-beneficiary' element={
-            <AuthenticatedRoute>
-              <AddBeneficiaryComponent />
-            </AuthenticatedRoute>
-          }></Route>
-          <Route path='/transfer' element={
-            <AuthenticatedRoute>
-              <TransferComponent />
-            </AuthenticatedRoute>
-          }></Route>
-          <Route path='/add-account' element={
-            <AdminRoute>
-              <AccountComponent />
-            </AdminRoute>
-          }></Route>
-          <Route path='/update-account/:id' element={
-            <AuthenticatedRoute>
-              <AccountComponent />
-            </AuthenticatedRoute>
-          }></Route>
-          <Route path='/register' element={<RegisterComponent />}></Route>
-          <Route path='/login' element={<LoginComponent />}></Route>
-          <Route path='/success' element={<RegistrationSuccess />}></Route>
-        </Routes>
-        <ToastContainer />
-        <FooterComponent />
-      </BrowserRouter>
-    </>
-  )
-}
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-export default App
+      <Route
+        element={
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/accounts" element={<Accounts />} />
+        <Route path="/transfer" element={<Transfer />} />
+        <Route path="/beneficiaries" element={<Beneficiaries />} />
+        <Route path="/cards" element={<Cards />} />
+        <Route path="/loans" element={<Loans />} />
+        <Route path="/deposits" element={<Deposits />} />
+        <Route path="/cheques" element={<Cheques />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/support" element={<Support />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminConsole />
+            </AdminRoute>
+          }
+        />
+      </Route>
+
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+  );
+}

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Set;
+import com.jantabank.domain.enums.BeneficiaryStatus;
 
 @Setter
 @Getter
@@ -14,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity()
 @Table(name="beneficiaries")
-public class Beneficiary {
+public class Beneficiary extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,9 +34,18 @@ public class Beneficiary {
     private double amountlimit;
 
     @Column(name = "status",nullable = false)
-    private long status;
+    private BeneficiaryStatus status;
 
-    @ManyToMany(fetch = FetchType.EAGER,cascade = {CascadeType.ALL})
+    @Column(name = "nickname", length = 100)
+    private String nickname;
+
+    @Column(name = "favourite", nullable = false)
+    private boolean favourite;
+
+    @Column(name = "activate_after")
+    private java.time.LocalDateTime activateAfter;
+
+    @ManyToMany(fetch = FetchType.EAGER,cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name="beneficiaries_accounts",
             joinColumns =@JoinColumn(name = "beneficiary_id",referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "account_id",referencedColumnName = "id")

@@ -1,7 +1,9 @@
 package com.jantabank.impl;
 
 import com.jantabank.config.BranchConfig;
-import com.jantabank.config.Enums;
+import com.jantabank.domain.enums.AccountStatus;
+import com.jantabank.domain.enums.AccountType;
+import com.jantabank.domain.enums.UserStatus;
 import com.jantabank.dto.UserDto;
 import com.jantabank.entity.Account;
 import com.jantabank.entity.User;
@@ -34,7 +36,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllUserRequests() {
-        List<User> users = userRepository.findUsersByStatus(Enums.AccountStatus.REQUESTED);
+        List<User> users = userRepository.findByStatus(UserStatus.REQUESTED);
 
         if (users.isEmpty()) {
             throw new ResourceNotFoundException("No accounts found");
@@ -47,7 +49,7 @@ public class UserServiceImpl implements UserService {
     public UserDto rejectRequest(long Id) {
         User user =  userRepository.findById(Id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id : " + Id));
-        user.setStatus(Enums.AccountStatus.REJECTED);
+        user.setStatus(UserStatus.REJECTED);
 
         User updatedUser = userRepository.save(user);
         return modelMapper.map(updatedUser, UserDto.class);
@@ -64,13 +66,13 @@ public class UserServiceImpl implements UserService {
 //             Perform account generation logic
             Account account = new Account();
             account.setAccountHolderName(user.getName());
-            account.setAccountType(String.valueOf(Enums.AccountType.SAVINGS));
+            account.setAccountType(AccountType.SAVINGS.name());
             account.setBranchId(branchConfig.getBranchId());
             account.setIfscCode(branchConfig.getBranchIfsc());
             account.setBalance(0.0);
             account.setAccountNumber("0");
             account.setOpenDate(new Date());
-            account.setStatus(Enums.AccountStatus.ACTIVE);
+            account.setStatus(AccountStatus.ACTIVE);
             account.setAddress(user.getAddress());
             account.setContactNumber(user.getMobile());
             account.setEmailAddress(user.getEmail());
@@ -79,21 +81,21 @@ public class UserServiceImpl implements UserService {
             account.setUsers(users);
             Account newAccount = accountRepository.save(account);
 
-            String accountNo = generateAccountNumber(branchConfig.getBranchId(),Enums.AccountType.SAVINGS
+            String accountNo = generateAccountNumber(branchConfig.getBranchId(),AccountType.SAVINGS
             ,newAccount.getId());
         newAccount.setAccountNumber(accountNo);
         Account updatedAccount = accountRepository.save(account);
-        user.setStatus(Enums.AccountStatus.ACTIVE);
+        user.setStatus(UserStatus.ACTIVE);
 
         User updatedUser = userRepository.save(user);
         return modelMapper.map(updatedUser, UserDto.class);
     }
 
-    private String generateAccountNumber(String branchId,long accountType, long accountId) {
+    private String generateAccountNumber(String branchId, AccountType accountType, long accountId) {
         // Implement logic to generate the account number
         // Example: Branch ID (4 characters) + Account Type (2 characters) + Account ID (6 digits, padded with zeros)
         String paddedAccountId = String.format("%06d", accountId); // Pad account ID with zeros
-        String paddedAccountType = String.format("%02d", accountType); // Pad account ID with zeros
+        String paddedAccountType = String.format("%02d", accountType.getCode()); // Pad account type code with zeros
         return branchId + paddedAccountType + paddedAccountId;
     }
 }

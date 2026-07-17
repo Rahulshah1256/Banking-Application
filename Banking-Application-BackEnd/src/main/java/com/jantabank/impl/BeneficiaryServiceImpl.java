@@ -2,6 +2,7 @@ package com.jantabank.impl;
 
 import com.jantabank.dto.AccountDto;
 import com.jantabank.dto.BeneficiaryDto;
+import com.jantabank.domain.enums.BeneficiaryStatus;
 import com.jantabank.entity.Account;
 import com.jantabank.entity.Beneficiary;
 import com.jantabank.repository.BeneficiaryRepository;
@@ -38,7 +39,7 @@ public class BeneficiaryServiceImpl implements BeneficiaryService {
             }
         }
 
-        beneficiaryDto.setStatus(1);
+        beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE);
         List<Account> myAccounts = accountService.getAccountByUser(userId);
         Account selectedAccount = myAccounts.isEmpty() ? null : myAccounts.get(0);
         Set<Account> accounts = selectedAccount != null ? Collections.singleton(selectedAccount) : new HashSet<>();

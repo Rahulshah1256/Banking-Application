@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.jantabank.domain.enums.UserStatus;
 
 @Setter
 @Getter
@@ -29,5 +30,5 @@ public class UserDto {
 
     private String mobile;
 
-    private long status;
+    private UserStatus status;
 }

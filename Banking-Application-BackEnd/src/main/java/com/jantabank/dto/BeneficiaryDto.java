@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.jantabank.domain.enums.BeneficiaryStatus;
 
 @Setter
 @Getter
@@ -21,5 +22,5 @@ public class BeneficiaryDto {
 
     private double amountlimit;
 
-    private long status;
+    private BeneficiaryStatus status;
 }

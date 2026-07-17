@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.util.Date;
 import java.util.Set;
+import com.jantabank.domain.enums.AccountStatus;
 
 @Setter
 @Getter
@@ -16,7 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity()
 @Table(name="accounts")
-public class Account {
+public class Account extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +45,7 @@ public class Account {
     private Date openDate;
 
     @Column(name = "status",nullable = false)
-    private long status;
+    private AccountStatus status;
 
     @Column(name = "address",nullable = false)
     private String address;

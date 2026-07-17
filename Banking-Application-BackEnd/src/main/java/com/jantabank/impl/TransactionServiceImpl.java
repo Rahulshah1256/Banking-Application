@@ -1,6 +1,6 @@
 package com.jantabank.impl;
 
-import com.jantabank.config.Enums;
+import com.jantabank.domain.enums.TransactionStatus;
 import com.jantabank.dto.TransactionDto;
 import com.jantabank.entity.Account;
 import com.jantabank.entity.Transaction;
@@ -52,7 +52,7 @@ public class TransactionServiceImpl implements TransactionService {
                 // Perform the transaction in a database transaction
                 transactionTemplate.execute(status -> {
 
-                    transaction.setStatus(Enums.TransactionStatus.COMPLETED);
+                    transaction.setStatus(TransactionStatus.COMPLETED);
                     Transaction savedTransaction = transactionRepository.save(transaction);
 
                     accountService.updateAccount(fromAccount);

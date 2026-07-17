@@ -12,8 +12,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class JwtTokenProvider {
@@ -24,34 +28,29 @@ public class JwtTokenProvider {
     @Value("${app.jwt-expiration-milliseconds}")
     private String jwtExpirationDate;
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public JwtTokenProvider(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    //Generate JWT Token
-    public String generateToken(Authentication authentication  )
-    {
-        String username = authentication.getName();
+    //Generate JWT Token from an authenticated principal
+    public String generateToken(Authentication authentication) {
+        return generateAccessToken(authentication.getName());
+    }
 
-        Date currentDate= new Date();
+    //Generate JWT access token for a given username
+    public String generateAccessToken(String username) {
         long jwtExpirationDateLong = Long.parseLong(jwtExpirationDate);
-        long currentTimeMillis = System.currentTimeMillis();
-
-        Date issueDate = new Date(currentTimeMillis);
-
+        Date issueDate = new Date(System.currentTimeMillis());
         Date expiryDate = new Date(issueDate.getTime() + jwtExpirationDateLong);
 
-
-        Optional<User> optionalUser = userRepository.findByUsernameOrEmail(username,username);
-        if (optionalUser.isPresent())
-        {
+        Optional<User> optionalUser = userRepository.findByUsernameOrEmail(username, username);
+        if (optionalUser.isPresent()) {
             User loggedInUser = optionalUser.get();
             Optional<Role> optionalRole = loggedInUser.getRoles().stream().findFirst();
 
-            if(optionalRole.isPresent())
-            {
+            if (optionalRole.isPresent()) {
                 Role userrole = optionalRole.get();
 
                 Claims claims = Jwts.claims().setSubject(username);
@@ -60,45 +59,56 @@ public class JwtTokenProvider {
                 claims.put("name", loggedInUser.getName());
                 claims.put("id", loggedInUser.getId());
 
-                String token =   Jwts.builder()
-                        .setSubject(username)
+                return Jwts.builder()
                         .setClaims(claims)
+                        .setId(UUID.randomUUID().toString())
                         .setIssuedAt(issueDate)
                         .setExpiration(expiryDate)
                         .signWith(key())
                         .compact();
-
-                return token;
-
             }
         }
         return "";
     }
 
-    private Key key ()
-    {
+    private Key key() {
         return Keys.hmacShaKeyFor(
                 Decoders.BASE64.decode(jwtSecret)
         );
     }
 
-    //Get Username From JWt Token
-    public String getUsername(String token)
-    {
-        Claims claims =  Jwts.parserBuilder()
+    //Get Username From JWT Token
+    public String getUsername(String token) {
+        return parseClaims(token).getSubject();
+    }
+
+    //Get the unique token id (jti) from a JWT
+    public String getJti(String token) {
+        return parseClaims(token).getId();
+    }
+
+    //Get the expiry instant of a JWT as LocalDateTime
+    public LocalDateTime getExpiration(String token) {
+        Date expiration = parseClaims(token).getExpiration();
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(expiration.getTime()), ZoneId.systemDefault());
+    }
+
+    //Configured access-token lifetime in seconds
+    public long getAccessExpirationSeconds() {
+        return Long.parseLong(jwtExpirationDate) / 1000;
+    }
+
+    private Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
                 .setAllowedClockSkewSeconds(600000)
                 .setSigningKey(key())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        String username = claims.getSubject();
-        return username;
     }
 
     //Validate JWT Token
-
-    public boolean validateToken(String token)
-    {
+    public boolean validateToken(String token) {
         Jwts.parserBuilder()
                 .setAllowedClockSkewSeconds(600000)
                 .setSigningKey(key())

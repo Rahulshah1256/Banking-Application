@@ -10,4 +10,7 @@ public interface AccountRepository extends JpaRepository<Account,Long>{
     List<Account> findByUsers_Id(long userId);
 
     Account findByAccountNumber(String accountNumber);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(a.balance), 0) FROM Account a")
+    double sumAllBalances();
 }

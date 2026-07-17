@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.jantabank.domain.enums.TransactionStatus;
 
 import java.util.Date;
 
@@ -24,5 +25,5 @@ public class TransactionDto {
 
     private Date transactiondate;
 
-    private long status;
+    private TransactionStatus status;
 }
