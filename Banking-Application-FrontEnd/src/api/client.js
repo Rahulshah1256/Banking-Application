@@ -44,6 +44,7 @@ export const errorMessage = (error, fallback = 'Something went wrong') => {
   const data = error?.response?.data;
   if (data) {
     if (typeof data === 'string') return data;
+    if (Array.isArray(data.errors) && data.errors.length) return data.errors.join(' • ');
     if (data.message) return data.message;
     if (data.error) return data.error;
   }
